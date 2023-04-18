@@ -40,16 +40,38 @@ class TextDataset(Dataset):
         super().__init__()
         self.data_path = data_path
         self.tokenizer = tokenizer
-        self.read_data()
-        if has_labels:
-            self.read_labels()
+
+        logging.info("Reading data from {}".format(self.data_path))
+        data = pd.read_csv(self.data_path, sep="\t", header=None)  # read text file
+        data = data.dropna(axis='index')
+        logging.info(f"Tokenizing {len(data)} sentences")
+
+        self.text = data[0].apply(lambda x: x.strip()).tolist()
+
+
+        #self.read_data()
+        #if has_labels:
+        #    self.read_labels()
 
     def read_data(self):
         logging.info("Reading data from {}".format(self.data_path))
         data = pd.read_csv(self.data_path, sep="\t", header=None)  # read text file
         logging.info(f"Tokenizing {len(data)} sentences")
+        data = data.dropna(axis='index')
+        
+        print(data[0])
+        print()
+        print(data)
+        print()
+
+        #for d in data[0]:
+        #  if isinstance(d, float):
+        #    print(d)
+        
+        #print()
 
         self.text = data[0].apply(lambda x: x.strip()).tolist()
+
         # encoded_input = self.tokenizer(self.questions, self.paragraphs)
         
         # check if tokenizer has a method 'encode_batch'
@@ -80,10 +102,21 @@ class TextDataset(Dataset):
         return len(self.text)
 
     def __getitem__(self, i):
+        # check if tokenizer has a method 'encode_batch'
+        if hasattr(self.tokenizer, 'encode_batch'):
+
+            encoded_input = self.tokenizer.encode_batch(self.text[i])
+            self.input_ids = [x.ids for x in encoded_input]
+        
+        else:
+            encoded_input = self.tokenizer(self.text[i])
+            self.input_ids = encoded_input["input_ids"]
+
         out_dict = {
-            "input_ids": self.input_ids[i],
+            "input_ids": self.input_ids,
             # "attention_mask": [1] * len(self.input_ids[i]),
         }
+        # TODO: Changes needed
         if hasattr(self, "labels"):
             out_dict["label"] = self.labels[i]
         return out_dict
@@ -110,7 +143,8 @@ class TextDataset(Dataset):
         for i in range(num_elems):
             toks = batch[i]["input_ids"]
             length = len(toks)
-            tokens[i, :length] = torch.LongTensor(toks)
+            toks = torch.LongTensor(toks)
+            tokens[i, :length] = toks[:max_token_len]
             tokens_mask[i, :length] = 1
             if has_labels:
                 labels[i] = batch[i]["label"]
