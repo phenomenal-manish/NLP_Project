@@ -2,7 +2,7 @@ import json
 import logging
 import pathlib
 import torch
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, BertTokenizer
 
 from tokenizers.processors import BertProcessing
 from tokenizers import ByteLevelBPETokenizer, decoders
@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.INFO)
 
 def create_tokenizer(return_pretokenized, path, tokenizer_type: str = "word-level"):
     if return_pretokenized:
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        #tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
         return tokenizer
 
     if tokenizer_type == "byte-level":

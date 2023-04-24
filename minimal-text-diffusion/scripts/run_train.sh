@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 
-DSET=${1:-cc_news/cc_news}
+DSET=${1:-wmt/wmt}
 
 GPU=${2:-0}
 INIT_PRETRAINED_MODEL=${3:-"True"}
@@ -24,6 +24,8 @@ SEED=${17:-10708}
 DROPOUT=${18:-0.1}
 NUM_HEADS=${19:-4}
 CONFIG_NAME=${20:-"bert-base-uncased"}
+TRAIN_LABEL_PATH=${21:-data/${DSET}-train_label_small.txt}
+VAL_LABEL_PATH=${22:-data/${DSET}-test_label_small.txt}
 
 
 NOTES=${18:-"Pre-trained models, pre-trained embeddings, embeddings not frozen"}
@@ -50,6 +52,8 @@ ARGS=(--checkpoint_path ${CHECKPOINT_PATH}
     --train_txt_path ${TRAIN_TXT_PATH}
     --dataset ${DSET}
     --val_txt_path ${VAL_TXT_PATH}
+    --train_label_path ${TRAIN_LABEL_PATH}
+    --val_label_path ${VAL_LABEL_PATH}
     --num_heads ${NUM_HEADS}
     --config_name ${CONFIG_NAME}
     --init_pretrained ${INIT_PRETRAINED_MODEL}

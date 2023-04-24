@@ -41,34 +41,30 @@ class TextDataset(Dataset):
         self.data_path = data_path
         self.tokenizer = tokenizer
 
+        # Read data
         logging.info("Reading data from {}".format(self.data_path))
-        data = pd.read_csv(self.data_path, sep="\t", header=None)  # read text file
-        data = data.dropna(axis='index')
+        data = pd.read_csv(self.data_path[0], sep="\t", header=None)  # read text file
+        # Commenting for WMT 
+        #data = data.dropna(axis='index')
         logging.info(f"Tokenizing {len(data)} sentences")
 
         self.text = data[0].apply(lambda x: x.strip()).tolist()
 
-
         #self.read_data()
-        #if has_labels:
-        #    self.read_labels()
+
+        # Read labels
+        label_data = pd.read_csv(self.data_path[1], sep="\t", header=None)[1].tolist()
+        self.labels = label_data[0].apply(lambda x: x.strip()).tolist()
+        
+        #self.idx_to_label = {i: label for i, label in self.label_to_idx.items()}
+        #self.labels = [self.label_to_idx[label] for label in self.labels]
+        
 
     def read_data(self):
         logging.info("Reading data from {}".format(self.data_path))
         data = pd.read_csv(self.data_path, sep="\t", header=None)  # read text file
         logging.info(f"Tokenizing {len(data)} sentences")
         data = data.dropna(axis='index')
-        
-        print(data[0])
-        print()
-        print(data)
-        print()
-
-        #for d in data[0]:
-        #  if isinstance(d, float):
-        #    print(d)
-        
-        #print()
 
         self.text = data[0].apply(lambda x: x.strip()).tolist()
 
@@ -118,7 +114,13 @@ class TextDataset(Dataset):
         }
         # TODO: Changes needed
         if hasattr(self, "labels"):
-            out_dict["label"] = self.labels[i]
+            encoded_labels = self.tokenizer.encode_batch(self.labels[i])
+            self.output_ids = [x.ids for x in encoded_labels]
+        
+        else:
+            encoded_labels = self.tokenizer(self.labels[i])
+            self.output_ids = encoded_labels["input_ids"]
+        out_dict["label"] = self.output_ids
         return out_dict
 
     @staticmethod

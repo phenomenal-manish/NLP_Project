@@ -33,14 +33,14 @@ def main():
 
     train_dataloader = data_utils_sentencepiece.get_dataloader(
         tokenizer=tokenizer,
-        data_path=args.train_txt_path,
+        data_path=[args.train_txt_path, args.train_label_path],
         batch_size=args.batch_size,
         max_seq_len=args.sequence_len
     )
 
     val_dataloader = data_utils_sentencepiece.get_dataloader(
         tokenizer=tokenizer,
-        data_path=args.val_txt_path,
+        data_path=[args.val_txt_path, args.val_label_path],
         batch_size=args.batch_size,
         max_seq_len=args.sequence_len
     )

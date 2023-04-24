@@ -27,6 +27,8 @@ def create_argparser():
         checkpoint_path="diff_models",
         train_txt_path="data/quotes_train.txt",
         val_txt_path="data/quotes_valid.txt",
+        train_label_path="data/quotes_train.txt",
+        val_label_path="data/quotes_valid.txt",
         dataset="",
         notes="",
     )
